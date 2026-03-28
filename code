@@ -1,0 +1,46 @@
+clc;
+clear all;
+close all;
+
+original_img = imread('akii.jpg');
+figure('Color', 'black', 'Position', [100, 100, 800, 800]);
+
+imshow(original_img);
+title('Original 2D Matrix', 'Color', 'white', 'FontSize', 16, 'FontName', 'Courier');
+pause(2.5);
+
+moody_img = original_img - 50;
+imshow(moody_img);
+title('I_new = I - 50 (Brightness Drop)', 'Color', 'white', 'FontSize', 16, 'FontName', 'Courier');
+pause(2.5);
+
+drama_img = original_img * 1.5;
+imshow(drama_img);
+title('I_new = 1.5 * I (Extreme Contrast)', 'Color', 'white', 'FontSize', 16, 'FontName', 'Courier');
+pause(2.5);
+
+img_double = double(original_img);
+R = img_double(:,:,1); 
+G = img_double(:,:,2); 
+B = img_double(:,:,3);
+
+[UR, SR, VR] = svd(R);
+[UG, SG, VG] = svd(G);
+[UB, SB, VB] = svd(B);
+
+k_values = [500, 100, 30, 10, 5]; 
+
+for i = 1:length(k_values)
+    k = k_values(i);
+    
+    R_recon = UR(:,1:k) * SR(1:k,1:k) * VR(:,1:k)';
+    G_recon = UG(:,1:k) * SG(1:k,1:k) * VG(:,1:k)';
+    B_recon = UB(:,1:k) * SB(1:k,1:k) * VB(:,1:k)';
+    
+    final_img = cat(3, R_recon, G_recon, B_recon);
+    
+    imshow(uint8(final_img));
+    title(sprintf('Applying Aesthetic Blur Filter: Keeping %d Data Points', k), 'Color', '#00FF00', 'FontSize', 16, 'FontName', 'Courier');
+    
+    pause(1.5); 
+end
